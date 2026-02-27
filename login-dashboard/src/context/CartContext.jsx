@@ -1,9 +1,24 @@
 import React, { createContext, useState, useEffect } from "react";
 
+/**
+ * CartContext - Global State Management
+ * 
+ * Mengelola state global untuk:
+ * - Shopping cart items
+ * - User orders
+ * - User authentication & session
+ * - API communication
+ */
 export const CartContext = createContext();
 
 const API_BASE_URL = "http://localhost:5000/api";
 
+/**
+ * CartProvider - Context Provider Component
+ * 
+ * Menyediakan cart, orders, user, dan fungsi API ke seluruh aplikasi
+ * @param {ReactNode} children - Child components
+ */
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
