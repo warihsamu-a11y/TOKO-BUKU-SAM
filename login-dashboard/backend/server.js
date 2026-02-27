@@ -1,3 +1,19 @@
+/**
+ * TOKO-BUKU-SAM Backend Server
+ * 
+ * Express.js API server untuk e-commerce toko buku
+ * 
+ * Features:
+ * - User authentication melalui JWT
+ * - Book catalog management
+ * - Shopping cart & order management
+ * - User profile management
+ * - REST API dengan Swagger documentation
+ * 
+ * Database: MySQL
+ * Port: 5000 (default)
+ */
+
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
