@@ -10,6 +10,17 @@ import Profile from "./pages/Profile";
 import Sidebar from "./components/Sidebar";
 import "./App.css";
 
+/**
+ * App - Main Application Component
+ * 
+ * Handles routing dan state management untuk aplikasi e-commerce toko buku
+ * dengan fitur:
+ * - User authentication (Login)
+ * - Product browsing (Books)
+ * - Shopping cart management
+ * - Order history tracking
+ * - User profile management
+ */
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
