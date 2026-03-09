@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { formatRupiah } from "../utils/formatCurrency";
@@ -6,20 +6,41 @@ import "./ShoppingCart.css";
 
 function ShoppingCart() {
   const navigate = useNavigate();
-  const { cart, removeFromCart, updateQuantity, getTotalPrice, createOrder } =
+  const { cart, removeFromCart, updateQuantity, getTotalPrice, createOrder, paymentMethod, setPaymentMethod } =
     useContext(CartContext);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleCheckout = () => {
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/payment-methods");
+        if (response.ok) {
+          const methods = await response.json();
+          setPaymentMethods(methods);
+        }
+      } catch (error) {
+        console.error("Error fetching payment methods:", error);
+      }
+    };
+    fetchPaymentMethods();
+  }, []);
+
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       return;
     }
+    setLoading(true);
     try {
-      const newOrder = createOrder();
+      const newOrder = await createOrder();
       if (newOrder) {
         navigate("/orders");
       }
     } catch (error) {
       console.error("Checkout error:", error.message);
+      alert("Error checkout: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,14 +131,16 @@ function ShoppingCart() {
                 <button
                   className="continue-shopping"
                   onClick={() => navigate("/books")}
+                  disabled={loading}
                 >
                   ← Lanjut Belanja
                 </button>
                 <button
                   className="checkout-btn"
                   onClick={handleCheckout}
+                  disabled={loading}
                 >
-                  ✓ Checkout
+                  {loading ? "⏳ Processing..." : "✓ Checkout"}
                 </button>
               </div>
             </>
@@ -125,6 +148,34 @@ function ShoppingCart() {
         </div>
 
         <div className="cart-sidebar">
+          <div className="payment-card">
+            <h3>💳 Metode Pembayaran</h3>
+            <div className="payment-methods">
+              {paymentMethods.length > 0 ? (
+                paymentMethods.map((method) => (
+                  <label key={method.id} className="payment-option">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={method.id}
+                      checked={paymentMethod === method.id}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+                    <span className="payment-label">
+                      <span className="payment-icon">{method.icon}</span>
+                      <span className="payment-info">
+                        <strong>{method.name}</strong>
+                        <small>{method.description}</small>
+                      </span>
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p>Memuat metode pembayaran...</p>
+              )}
+            </div>
+          </div>
+
           <div className="promo-card">
             <h3>🎁 Promosi</h3>
             <p>Gratis ongkir untuk pembelian di atas Rp 500.000</p>

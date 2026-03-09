@@ -1,7 +1,7 @@
 .order-container {
   min-height: 100vh;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3e2723 0%, #6d4c41 50%, #8d6e63 100%);
 }
 
 .order-header {
@@ -113,7 +113,7 @@
 
 .item-price {
   font-size: 11px;
-  color: #667eea;
+  color: #d4a574;
   font-weight: bold;
 }
 
@@ -139,7 +139,7 @@
 .total-amount {
   font-size: 18px;
   font-weight: bold;
-  color: #667eea;
+  color: #d4a574;
 }
 
 .no-orders {

@@ -25,6 +25,7 @@ export function CartProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("transfer");
 
   // Load token dan user dari localStorage saat app start
   useEffect(() => {
@@ -185,7 +186,7 @@ export function CartProvider({ children }) {
   const createOrder = async () => {
     if (!cart || cart.length === 0 || !user) {
       console.warn("Cannot create order: cart is empty or user not logged in");
-      return null;
+      throw new Error("Keranjang kosong atau belum login");
     }
 
     setIsLoading(true);
@@ -203,8 +204,12 @@ export function CartProvider({ children }) {
           quantity: item.quantity || 1,
           price: item.price || 0
         })),
-        total: total
+        total: total,
+        paymentMethod: paymentMethod
       };
+
+      console.log("Order data:", orderData);
+      console.log("Headers:", getHeaders());
 
       const response = await fetch(`${API_BASE_URL}/orders`, {
         method: "POST",
@@ -212,12 +217,23 @@ export function CartProvider({ children }) {
         body: JSON.stringify(orderData)
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Gagal membuat pesanan");
+        const errorText = await response.text();
+        console.error("API error response:", errorText);
+        let errorMessage = "Gagal membuat pesanan";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const newOrder = await response.json();
+      console.log("Order created:", newOrder);
       
       // Update orders list
       setOrders([newOrder, ...orders]);
@@ -266,6 +282,8 @@ export function CartProvider({ children }) {
         orders,
         user,
         isLoading,
+        paymentMethod,
+        setPaymentMethod,
         addToCart,
         removeFromCart,
         updateQuantity,

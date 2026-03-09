@@ -7,7 +7,7 @@
 .login-page {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #744c45 0%, #70564e 50%, #8d6e63 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
   position: relative;
@@ -337,9 +337,9 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #d4a574;
   background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
   transform: translateY(-2px);
 }
 
@@ -350,7 +350,7 @@
 /* Submit Button */
 .submit-btn {
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #d4a574 0%, #a1887f 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -382,7 +382,7 @@
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 25px rgba(212, 165, 116, 0.4);
 }
 
 .submit-btn:hover:not(:disabled)::before {
@@ -479,7 +479,7 @@
 }
 
 .toggle-link {
-  color: #667eea;
+  color: #d4a574;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -494,16 +494,29 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: #667eea;
+  background: #d4a574;
   transition: width 0.3s ease;
 }
 
 .toggle-link:hover {
-  color: #764ba2;
+  color: #a1887f;
 }
 
 .toggle-link:hover::after {
   width: 100%;
+}
+
+/* Error Message */
+.error-message {
+  padding: 12px 15px;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 10px;
+  color: #c33;
+  font-size: 13px;
+  margin-bottom: 15px;
+  animation: fadeIn 0.3s ease-out;
+  border-left: 3px solid #c33;
 }
 
 /* Footer */

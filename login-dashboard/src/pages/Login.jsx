@@ -10,11 +10,13 @@ function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login, register } = useContext(CartContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
     try {
       await login(username, password);
@@ -22,6 +24,7 @@ function Login({ onLoginSuccess }) {
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
       setUsername("");
@@ -31,10 +34,20 @@ function Login({ onLoginSuccess }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
+
     if (!username || !email || !password || !confirmPassword) {
+      setError("Semua field harus diisi");
       return;
     }
+
+    if (password.length < 8) {
+      setError("Password harus lebih dari 8 karakter");
+      return;
+    }
+
     if (password !== confirmPassword) {
+      setError("Password tidak cocok");
       return;
     }
 
@@ -46,8 +59,10 @@ function Login({ onLoginSuccess }) {
       setPassword("");
       setEmail("");
       setConfirmPassword("");
+      setError("");
     } catch (error) {
       console.error("Register error:", error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -100,6 +115,8 @@ function Login({ onLoginSuccess }) {
             <img src="/logo2.png" alt="Toko Buku Logo" className="logo-image" />
             <h2>Samm Store</h2>
           </div>
+
+          {error && <div className="error-message">{error}</div>}
 
           {isLogin ? (
             <>
@@ -189,7 +206,7 @@ function Login({ onLoginSuccess }) {
                   <span className="input-icon">🔒</span>
                   <input
                     type="password"
-                    placeholder="Minimal 6 karakter"
+                    placeholder="Minimal 8 karakter"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

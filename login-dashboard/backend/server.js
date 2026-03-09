@@ -154,6 +154,7 @@ const initDatabase = async () => {
         items JSON NOT NULL,
         total DECIMAL(10, 2) NOT NULL,
         status VARCHAR(50) DEFAULT 'Dalam Pengiriman',
+        payment_method VARCHAR(50) DEFAULT 'transfer',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id)
@@ -277,6 +278,12 @@ app.post("/api/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const connection = await pool.getConnection();
+
+    // Validate password length (> 8 characters)
+    if (password.length < 8) {
+      connection.release();
+      return res.status(400).json({ error: "Password harus lebih dari 8 karakter" });
+    }
 
     // Check if user exists
     const [existingUser] = await connection.execute(
@@ -671,6 +678,9 @@ app.delete("/api/products/:productId", verifyToken, verifyAdmin, async (req, res
  *               total:
  *                 type: number
  *                 example: 500000
+ *               paymentMethod:
+ *                 type: string
+ *                 example: transfer
  *     responses:
  *       201:
  *         description: Order berhasil dibuat
@@ -683,31 +693,49 @@ app.delete("/api/products/:productId", verifyToken, verifyAdmin, async (req, res
  */
 app.post("/api/orders", verifyToken, async (req, res) => {
   try {
-    const { items, total } = req.body;
+    const { items, total, paymentMethod } = req.body;
+    
+    // Validate required fields
+    if (!items || !total || items.length === 0) {
+      console.error("Validation error: Missing items or total");
+      return res.status(400).json({ error: "Items dan total diperlukan" });
+    }
+
     const connection = await pool.getConnection();
 
     const orderNumber = `ORD-${Date.now()}`;
 
-    await connection.execute(
-      "INSERT INTO orders (order_number, user_id, items, total) VALUES (?, ?, ?, ?)",
-      [orderNumber, req.user.id, JSON.stringify(items), total]
-    );
+    try {
+      await connection.execute(
+        "INSERT INTO orders (order_number, user_id, items, total, payment_method) VALUES (?, ?, ?, ?, ?)",
+        [orderNumber, req.user.id, JSON.stringify(items), total, paymentMethod || 'transfer']
+      );
 
-    const [newOrder] = await connection.execute(
-      "SELECT * FROM orders WHERE order_number = ?",
-      [orderNumber]
-    );
+      const [newOrder] = await connection.execute(
+        "SELECT * FROM orders WHERE order_number = ?",
+        [orderNumber]
+      );
 
-    connection.release();
+      connection.release();
 
-    const order = newOrder[0];
-    res.status(201).json({
-      ...order,
-      items: JSON.parse(order.items),
-    });
+      if (!newOrder || newOrder.length === 0) {
+        console.error("Order not found after insert");
+        return res.status(500).json({ error: "Gagal membuat pesanan: data tidak ditemukan" });
+      }
+
+      const order = newOrder[0];
+      res.status(201).json({
+        ...order,
+        items: JSON.parse(order.items),
+      });
+    } catch (dbError) {
+      connection.release();
+      console.error("Database error:", dbError);
+      res.status(500).json({ error: "Pemesanan gagal: " + dbError.message });
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Pemesanan gagal" });
+    console.error("Order creation error:", error);
+    res.status(500).json({ error: "Pemesanan gagal: " + error.message });
   }
 });
 
@@ -898,6 +926,154 @@ app.get("/api/users", verifyToken, verifyAdmin, async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Gagal mengambil daftar user" });
   }
+});
+
+// Get dashboard statistics
+/**
+ * @swagger
+ * /api/stats:
+ *   get:
+ *     summary: Dapatkan statistik dashboard
+ *     tags: [Statistics]
+ *     responses:
+ *       200:
+ *         description: Statistik dashboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalUsers:
+ *                   type: number
+ *                   example: 5
+ *                 totalProducts:
+ *                   type: number
+ *                   example: 8
+ *                 totalOrders:
+ *                   type: number
+ *                   example: 12
+ *                 totalRevenue:
+ *                   type: number
+ *                   example: 3500000
+ */
+app.get("/api/stats", async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    // Get total users (exclude admin)
+    const [usersResult] = await connection.execute(
+      "SELECT COUNT(*) as count FROM users WHERE role = 'user'"
+    );
+    const totalUsers = usersResult[0].count;
+
+    // Get total products
+    const [productsResult] = await connection.execute(
+      "SELECT COUNT(*) as count FROM products"
+    );
+    const totalProducts = productsResult[0].count;
+
+    // Get total orders
+    const [ordersResult] = await connection.execute(
+      "SELECT COUNT(*) as count FROM orders"
+    );
+    const totalOrders = ordersResult[0].count;
+
+    // Get total revenue
+    const [revenueResult] = await connection.execute(
+      "SELECT SUM(total) as total FROM orders"
+    );
+    const totalRevenue = revenueResult[0].total || 0;
+
+    connection.release();
+
+    res.json({
+      totalUsers,
+      totalProducts,
+      totalOrders,
+      totalRevenue
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Gagal mengambil statistik" });
+  }
+});
+
+// Get available payment methods
+/**
+ * @swagger
+ * /api/payment-methods:
+ *   get:
+ *     summary: Dapatkan daftar metode pembayaran
+ *     tags: [Payments]
+ *     responses:
+ *       200:
+ *         description: Daftar metode pembayaran
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ */
+app.get("/api/payment-methods", (req, res) => {
+  const paymentMethods = [
+    {
+      id: "transfer",
+      name: "Transfer Bank",
+      description: "Transfer ke rekening bank kami",
+      icon: "🏦"
+    },
+    {
+      id: "bri",
+      name: "BRI",
+      description: "Transfer via BRI",
+      icon: "🏦"
+    },
+    {
+      id: "dana",
+      name: "DANA",
+      description: "Pembayaran via DANA",
+      icon: "💳"
+    },
+    {
+      id: "gopay",
+      name: "GoPay",
+      description: "Pembayaran via GoPay",
+      icon: "📱"
+    },
+    {
+      id: "ovo",
+      name: "OVO",
+      description: "Pembayaran via OVO",
+      icon: "💳"
+    },
+    {
+      id: "qris",
+      name: "QRIS",
+      description: "Pembayaran via QRIS",
+      icon: "📲"
+    },
+    {
+      id: "credit_card",
+      name: "Kartu Kredit",
+      description: "Pembayaran dengan kartu kredit",
+      icon: "💳"
+    },
+    {
+      id: "installment",
+      name: "Cicilan",
+      description: "Pembayaran cicilan tanpa bunga",
+      icon: "📋"
+    }
+  ];
+  res.json(paymentMethods);
 });
 
 // Health check

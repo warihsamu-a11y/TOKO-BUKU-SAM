@@ -1,7 +1,7 @@
 .profile-container {
   min-height: 100vh;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3e2723 0%, #6d4c41 50%, #8d6e63 100%);
 }
 
 .profile-header {
@@ -38,7 +38,7 @@
 .profile-avatar {
   width: 120px;
   height: 120px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #d4a574 0%, #a1887f 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -61,7 +61,7 @@
   right: 0;
   width: 36px;
   height: 36px;
-  background: rgba(102, 126, 234, 0.9);
+  background: rgba(212, 165, 116, 0.9);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -73,7 +73,7 @@
 }
 
 .photo-upload-label:hover {
-  background: rgba(102, 126, 234, 1);
+  background: rgba(212, 165, 116, 1);
   transform: scale(1.1);
 }
 
@@ -141,8 +141,8 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+  border-color: #d4a574;
+  box-shadow: 0 0 5px rgba(212, 165, 116, 0.3);
 }
 
 .profile-actions {
@@ -164,13 +164,13 @@
 }
 
 .edit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #d4a574 0%, #a1887f 100%);
   color: white;
 }
 
 .edit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(212, 165, 116, 0.4);
 }
 
 .save-btn {
@@ -230,7 +230,7 @@
 }
 
 .stat-item span {
-  color: #667eea;
+  color: #d4a574;
   font-weight: bold;
   font-size: 14px;
 }

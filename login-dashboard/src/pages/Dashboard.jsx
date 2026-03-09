@@ -21,18 +21,21 @@ function Dashboard() {
       try {
         setLoading(true);
         
-        // Fetch products
-        const productsRes = await fetch("http://localhost:5000/api/products");
-        const products = productsRes.ok ? await productsRes.json() : [];
+        // Fetch statistics dari backend
+        const statsRes = await fetch("http://localhost:5000/api/stats");
+        const data = statsRes.ok ? await statsRes.json() : {
+          totalProducts: 8,
+          totalUsers: 1,
+          totalOrders: 0,
+          totalRevenue: 0
+        };
         
-        // Hitung revenue dari orders di context
-        const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-        
+        // Map API response ke state
         setStats({
-          totalBooks: products.length || 8,
-          totalUsers: 1, // Minimal ada 1 user (yang login)
-          totalOrders: orders.length || 0,
-          totalRevenue: totalRevenue || 0
+          totalBooks: data.totalProducts,
+          totalUsers: data.totalUsers,
+          totalOrders: data.totalOrders,
+          totalRevenue: data.totalRevenue
         });
       } catch (err) {
         console.error("Error fetching stats:", err);
@@ -40,8 +43,8 @@ function Dashboard() {
         setStats({
           totalBooks: 8,
           totalUsers: 1,
-          totalOrders: orders.length || 0,
-          totalRevenue: orders.reduce((sum, order) => sum + (order.total || 0), 0) || 0
+          totalOrders: 0,
+          totalRevenue: 0
         });
       } finally {
         setLoading(false);
@@ -49,7 +52,7 @@ function Dashboard() {
     };
 
     fetchStats();
-  }, [orders]);
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -61,7 +64,7 @@ function Dashboard() {
 
         <div className="stats-container">
           <div className="stat-card">
-            <h3>Total Buku</h3>
+            <h3>📚 Total Buku</h3>
             <p className="stat-number">{stats.totalBooks}</p>
           </div>
           <div className="stat-card">
