@@ -5,7 +5,7 @@ import "./Sidebar.css";
 
 function Sidebar({ isOpen, setIsOpen, onLogout }) {
   const navigate = useNavigate();
-  const { getTotalItems } = useContext(CartContext);
+  const { getTotalItems, user } = useContext(CartContext);
 
   const menuItems = [
     { icon: "🏠", label: "Dashboard", path: "/dashboard" },
@@ -13,6 +13,11 @@ function Sidebar({ isOpen, setIsOpen, onLogout }) {
     { icon: "🛒", label: "Keranjang", path: "/cart", badge: getTotalItems() },
     { icon: "📦", label: "Pesanan", path: "/orders" },
     { icon: "👤", label: "Profil", path: "/profile" },
+  ];
+
+  const adminMenuItems = [
+    { icon: "⚙️", label: "Admin Dashboard", path: "/admin" },
+    { icon: "📦", label: "Kelola Produk", path: "/admin/products" },
   ];
 
   const handleNavigate = (path) => {
@@ -62,6 +67,23 @@ function Sidebar({ isOpen, setIsOpen, onLogout }) {
               )}
             </button>
           ))}
+
+          {/* Admin Menu Section */}
+          {user && user.role === "admin" && (
+            <>
+              <div className="menu-divider">Admin Panel</div>
+              {adminMenuItems.map((item, idx) => (
+                <button
+                  key={`admin-${idx}`}
+                  className="menu-item admin-item"
+                  onClick={() => handleNavigate(item.path)}
+                >
+                  <span className="menu-icon">{item.icon}</span>
+                  <span className="menu-label">{item.label}</span>
+                </button>
+              ))}
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">

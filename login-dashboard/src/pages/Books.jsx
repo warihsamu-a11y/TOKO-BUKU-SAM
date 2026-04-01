@@ -1,9 +1,11 @@
 import { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { formatRupiah } from "../utils/formatCurrency";
 import "./Books.css";
 
 function Books() {
+  const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
   const [selectedCategory, setSelectedCategory] = useState("semua");
   const [books, setBooks] = useState([]);
@@ -186,6 +188,7 @@ function Books() {
               <div className="book-overlay">
                 <button
                   className="quick-view-btn"
+                  onClick={() => navigate(`/product/${book.id}`)}
                 >
                   👁️ Lihat Detail
                 </button>

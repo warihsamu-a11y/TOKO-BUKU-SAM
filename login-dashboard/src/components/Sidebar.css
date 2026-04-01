@@ -159,6 +159,27 @@
   pointer-events: auto;
 }
 
+.menu-divider {
+  padding: 15px 20px 5px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+.admin-item {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+  border-left: 3px solid transparent;
+  padding-left: 17px;
+}
+
+.admin-item:hover {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-left-color: #ffc107;
+  padding-left: 22px;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     width: 250px;

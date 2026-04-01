@@ -20,7 +20,6 @@ function Login({ onLoginSuccess }) {
     setLoading(true);
     try {
       await login(username, password);
-      onLoginSuccess();
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error.message);

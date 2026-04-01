@@ -38,6 +38,7 @@ export function CartProvider({ children }) {
       // Fetch orders dengan token yang valid
       fetchOrders();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Helper: Get API headers dengan token
@@ -105,6 +106,24 @@ export function CartProvider({ children }) {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Get single product by ID
+  const getProduct = async (productId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+      
+      if (!response.ok) {
+        console.error("Gagal fetch produk");
+        return null;
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Get product error:", error);
+      return null;
     }
   };
 
@@ -294,6 +313,7 @@ export function CartProvider({ children }) {
         register,
         logout,
         fetchOrders,
+        getProduct,
         updateUser,
       }}
     >

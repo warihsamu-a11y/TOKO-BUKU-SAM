@@ -442,6 +442,47 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
+// Get single product by ID
+/**
+ * @swagger
+ * /api/products/{productId}:
+ *   get:
+ *     summary: Ambil detail produk
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Detail produk
+ *       404:
+ *         description: Produk tidak ditemukan
+ */
+app.get("/api/products/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const connection = await pool.getConnection();
+    const [products] = await connection.execute(
+      "SELECT * FROM products WHERE id = ?",
+      [productId]
+    );
+    connection.release();
+
+    if (products.length === 0) {
+      return res.status(404).json({ error: "Produk tidak ditemukan" });
+    }
+
+    res.json(products[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Gagal mengambil detail produk" });
+  }
+});
+
 // Add product (Admin only)
 /**
  * @swagger
